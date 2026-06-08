@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eukleia · Estimation locative — T2 avenue de la Vallée, Saint-Arnoult</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Segoe UI',Helvetica,Arial,sans-serif;background:#F7F4EF;color:#1B2B4B;min-height:100vh}
+  .header{background:#1B2B4B;position:relative;overflow:hidden}
+  .header-bar{width:6px;background:#B8975A;position:absolute;left:0;top:0;bottom:0}
+  .header-inner{padding:24px 40px 20px 48px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+  .brand-name{font-family:Georgia,serif;font-size:20px;letter-spacing:5px;color:#B8975A}
+  .brand-sub{font-size:10px;letter-spacing:2px;color:#8A9BAB;text-transform:uppercase}
+  .header-title{font-family:Georgia,serif;font-size:15px;color:#fff}
+  .header-subtitle{font-size:10px;color:#8A9BAB;margin-top:3px}
+  .header-meta{text-align:right}
+  .tabs-wrap{background:#162340;padding:0 40px;display:flex;border-bottom:2px solid #B8975A;flex-wrap:wrap;overflow-x:auto;scrollbar-width:none}
+  .tabs-wrap::-webkit-scrollbar{display:none}
+  .tab{padding:13px 22px;font-size:12px;color:#8A9BAB;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .2s;white-space:nowrap;flex-shrink:0;letter-spacing:.5px}
+  .tab:hover{color:#D4B896}
+  .tab.active{color:#B8975A;border-bottom-color:#B8975A;font-weight:600}
+  .content{padding:26px 40px 40px;max-width:1180px;margin:0 auto}
+  .section-title{font-family:Georgia,serif;font-size:19px;color:#1B2B4B;margin:18px 0 4px}
+  .section-title:first-child{margin-top:6px}
+  .section-intro{font-size:13px;color:#5A6B7B;line-height:1.6;margin-bottom:18px;max-width:780px}
+  .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:22px}
+  .kpi{background:#fff;border-radius:10px;padding:16px 20px;border:1px solid #EDE8DF;position:relative;overflow:hidden}
+  .kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:#B8975A}
+  .kpi.accent::before{background:#2D6A4F}
+  .kpi.dark{background:#1B2B4B;border-color:#1B2B4B}.kpi.dark::before{background:#B8975A}
+  .kpi-label{font-size:11px;color:#8A9BAB;text-transform:uppercase;letter-spacing:.8px;margin-bottom:5px}
+  .kpi.dark .kpi-label{color:#D4B896}
+  .kpi-value{font-family:Georgia,serif;font-size:24px;color:#1B2B4B}
+  .kpi.accent .kpi-value{color:#2D6A4F}.kpi.dark .kpi-value{color:#fff}
+  .kpi-sub{font-size:11px;color:#8A9BAB;margin-top:3px}
+  .table-wrap{background:#fff;border-radius:10px;border:1px solid #EDE8DF;overflow-x:auto;margin-bottom:18px}
+  table{width:100%;border-collapse:collapse;font-size:13px;min-width:600px}
+  thead tr{background:#1B2B4B}
+  thead th{padding:10px 12px;text-align:left;font-size:11px;font-weight:600;color:#D4B896;letter-spacing:.5px}
+  tbody tr{border-bottom:1px solid #F0EDE7;transition:background .15s}
+  tbody tr:hover{background:#FDFCFA}
+  tbody td{padding:8px 12px;color:#1B2B4B}
+  .total-row{background:#F7F4EF;font-weight:700}.total-row td{border-top:2px solid #B8975A}
+  .gold{color:#B8975A;font-weight:700}.green{color:#2D6A4F}.bold-navy{font-weight:700;color:#1B2B4B}.muted{color:#7A8794}
+  .badge{display:inline-block;padding:2px 9px;border-radius:20px;font-size:10px;font-weight:600;letter-spacing:.3px}
+  .badge-basse{background:#E8EEF2;color:#41607A}.badge-mi{background:#EDE8DF;color:#8A6D2F}
+  .badge-haute{background:#E5EFE9;color:#2D6A4F}.badge-tres-haute{background:#1B2B4B;color:#D4B896}
+  .chart-wrap{background:#fff;border-radius:10px;border:1px solid #EDE8DF;padding:20px 22px;margin-bottom:18px}
+  .chart-title{font-family:Georgia,serif;font-size:15px;color:#1B2B4B;margin-bottom:16px}
+  .source{font-size:11px;color:#9AA7B3;line-height:1.55;margin-top:6px;margin-bottom:8px}
+  #map{height:430px;border-radius:10px;border:1px solid #EDE8DF;margin-bottom:10px}
+  .leaflet-popup-content{font-family:'Segoe UI',sans-serif;font-size:12px}
+  .map-legend{display:flex;flex-wrap:wrap;gap:14px;font-size:12px;color:#5A6B7B;margin-bottom:20px}
+  .map-legend span{display:flex;align-items:center;gap:6px}
+  .dot{width:11px;height:11px;border-radius:50%;display:inline-block}
+  .adv-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin-bottom:22px}
+  .adv-card{background:#fff;border-radius:10px;border:1px solid #EDE8DF;padding:16px 18px;border-left:3px solid #B8975A}
+  .adv-card-title{font-family:Georgia,serif;font-size:14px;color:#1B2B4B;margin-bottom:6px}
+  .adv-card-desc{font-size:12px;color:#5A6B7B;line-height:1.55}
+  .scenarios-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px}
+  .scenario{background:#fff;border-radius:10px;border:2px solid #EDE8DF;padding:16px;cursor:pointer;transition:all .2s;text-align:center}
+  .scenario:hover{border-color:#D4B896}
+  .scenario.selected{border-color:#B8975A;box-shadow:0 4px 14px rgba(184,151,90,.18)}
+  .scenario.plancher.selected{border-color:#41607A}.scenario.plafond.selected{border-color:#2D6A4F}
+  .scenario-label{font-size:12px;text-transform:uppercase;letter-spacing:.8px;color:#8A9BAB;margin-bottom:6px}
+  .scenario-value{font-family:Georgia,serif;font-size:22px;color:#1B2B4B}
+  .scenario-nights{font-size:11px;color:#8A9BAB;margin-top:4px}
+  .bar-chart{display:flex;align-items:flex-end;gap:5px;height:150px;padding-top:10px}
+  .bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%}
+  .bar-fill-wrap{flex:1;width:100%;display:flex;align-items:flex-end}
+  .bar{width:100%;background:linear-gradient(180deg,#B8975A,#9A7B42);border-radius:3px 3px 0 0;transition:height .4s}
+  .bar-label{font-size:9px;color:#8A9BAB}.bar-val{font-size:9px;color:#1B2B4B;font-weight:600}
+  .faq-item{background:#fff;border-radius:10px;border:1px solid #EDE8DF;margin-bottom:10px;overflow:hidden}
+  .faq-q{padding:14px 18px;font-family:Georgia,serif;font-size:14px;color:#1B2B4B;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:12px}
+  .faq-q:hover{background:#FDFCFA}
+  .faq-q .chev{color:#B8975A;font-size:13px;transition:transform .2s;flex-shrink:0}
+  .faq-item.open .chev{transform:rotate(90deg)}
+  .faq-a{max-height:0;overflow:hidden;transition:max-height .3s;font-size:12.5px;color:#5A6B7B;line-height:1.6}
+  .faq-item.open .faq-a{max-height:600px}
+  .faq-a-inner{padding:0 18px 16px}
+  @media(max-width:640px){.content{padding:18px}.header-inner{padding:18px 20px}.tabs-wrap{padding:0 14px}.scenarios-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="header-bar"></div>
+  <div class="header-inner">
+    <div><div class="brand-name">EUKLEIA</div><div class="brand-sub">Conciergerie Premium · Côte Fleurie</div></div>
+    <div class="header-meta">
+      <div class="header-title">Estimation locative — T2 avenue de la Vallée</div>
+      <div class="header-subtitle">M. Thierry Zerdoun · 6 avenue de la Vallée, 14800 Saint-Arnoult · 2-4 voyageurs · Jardin · Piscine · Tennis</div>
+    </div>
+  </div>
+</div>
+<div class="tabs-wrap">
+  <div class="tab active" onclick="showTab('marche',this)">📍 Le bien &amp; son marché</div>
+  <div class="tab" onclick="showTab('projection',this)">📊 Projection de revenus</div>
+  <div class="tab" onclick="showTab('commission',this)">💎 Commission Eukleia</div>
+  <div class="tab" onclick="showTab('faq',this)">❓ FAQ &amp; cadre</div>
+</div>
+<div class="content">
+
+<!-- ===== TAB 1 ===== -->
+<div id="tab-marche">
+  <div class="section-title">📍 Emplacement — Saint-Arnoult, au pied du Mont-Canisy</div>
+  <div class="section-intro">Le 6 avenue de la Vallée se situe à Saint-Arnoult, commune résidentielle de la Côte Fleurie immédiatement au sud de Deauville. Le bien est au pied du Golf Barrière (Mont-Canisy) et à quelques minutes en voiture du Pôle International du Cheval Longines, des plages de Deauville et du centre. Un positionnement « nature & calme » à courte distance des moteurs de demande deauvillais.</div>
+  <div id="map"><div id="map-fallback" style="padding:20px;color:#8A9BAB;font-size:13px">Chargement de la carte… (nécessite une connexion internet)</div></div>
+  <div class="map-legend">
+    <span><span class="dot" style="background:#B8975A"></span> Le bien</span>
+    <span><span class="dot" style="background:#2D6A4F"></span> Moteurs de demande équestre &amp; golf</span>
+    <span><span class="dot" style="background:#41607A"></span> Deauville — centre &amp; plage</span>
+  </div>
+
+  <div class="section-title">✨ Avantages concurrentiels</div>
+  <div class="adv-grid">
+    <div class="adv-card"><div class="adv-card-title">🏊 Résidence avec piscine &amp; tennis</div><div class="adv-card-desc">Piscine, court de tennis, tennis de table et parking au sein de la résidence : un faisceau de services rare sur le segment T2 et très recherché en filtre Airbnb. C'est l'atout différenciant majeur, directement valorisable sur le prix nuitée.</div></div>
+    <div class="adv-card"><div class="adv-card-title">🌿 Jardin privatif de 35 m²</div><div class="adv-card-desc">Rez-de-jardin avec extérieur privatif : un argument décisif pour les couples et familles, et un levier de premium que les T2 sans extérieur ne peuvent pas activer. Sur la Côte Fleurie, l'extérieur fait basculer la réservation.</div></div>
+    <div class="adv-card"><div class="adv-card-title">⛳ Au pied du Golf Barrière</div><div class="adv-card-desc">Le Golf Barrière (Mont-Canisy), l'un des plus beaux parcours de France, est à quelques minutes. Clientèle golfique nationale et internationale, séjours en semaine hors pics touristiques — un moteur de demande qui comble les creux du calendrier.</div></div>
+    <div class="adv-card"><div class="adv-card-title">🐎 Proximité Pôle International du Cheval</div><div class="adv-card-desc">À 3 minutes du Pôle Longines (juste à l'est) et tout près de l'hippodrome. Les grands rendez-vous équestres (CSI 4* Longines Classic, Meeting de galop d'août, Polo Cup) saturent l'hébergement et justifient un premium fort sur les fenêtres événementielles.</div></div>
+    <div class="adv-card"><div class="adv-card-title">👨‍👩‍👧 Capacité 2-4 voyageurs</div><div class="adv-card-desc">Lit king + canapé-lit : couvre couples (cœur de cible) et petites familles. Format souple, charges de rotation maîtrisées, taux de remplissage favorable sur un large éventail de demandes.</div></div>
+    <div class="adv-card"><div class="adv-card-title">🌐 Diffusion multi-plateformes</div><div class="adv-card-desc">Airbnb + Booking.com + Abritel en simultané : visibilité élargie, capture de la clientèle internationale (Booking) et familiale long séjour (Abritel), avec une tarification pilotée canal par canal.</div></div>
+  </div>
+
+  <div class="section-title">🗓️ Moteurs de demande — par ordre de proximité</div>
+  <div class="section-intro">Saint-Arnoult bénéficie de l'attractivité deauvilloise tout en offrant calme et services de résidence. La demande se structure autour de moteurs équestres et golfiques de proximité, d'une demande touristique régionale, et d'une demande calendaire (vacances, ponts) qui sature l'hébergement sur des fenêtres précises.</div>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Moteur</th><th>Quand</th><th>Lecture pour le bien</th></tr></thead>
+    <tbody>
+      <tr><td class="bold-navy">⛳ Golf Barrière (Mont-Canisy)</td><td>Toute l'année, compétitions avril→octobre</td><td>Clientèle golfique en semaine, hors pics touristiques — comble les creux du calendrier ; le bien est au pied du parcours</td></tr>
+      <tr><td class="bold-navy">🐎 Meeting de galop d'août</td><td>2 → 30 août 2026, hippodrome Deauville-La Touques</td><td>Demande régionale et internationale soutenue tout le mois, séjours plus longs, premium fort justifié</td></tr>
+      <tr><td class="bold-navy">🏇 Longines Deauville Classic (CSI 4*)</td><td>13 → 16 août 2026, Pôle International du Cheval</td><td>Saut d'obstacles international : tension maximale sur l'hébergement de proximité, week-end premium</td></tr>
+      <tr><td class="bold-navy">🏑 Barrière Deauville Polo Cup</td><td>Août 2026 (Asia Polo Cup dès le 6 août)</td><td>Clientèle haut de gamme, séjours événementiels, renforce le pic d'août</td></tr>
+      <tr><td class="bold-navy">🎓 Vacances scolaires &amp; ponts</td><td>Été, Toussaint, Noël, hiver, printemps ; 8 mai, Ascension, 14 juillet…</td><td>Pics familiaux et week-ends prolongés : forte tension, séjours 3-4 nuits, prix premium</td></tr>
+      <tr><td class="bold-navy">🎬 Festival du Cinéma Américain</td><td>Début septembre — ~10 jours, Deauville</td><td>Forte tension hébergement sur toute la Côte Fleurie, prolonge la haute saison</td></tr>
+      <tr><td class="bold-navy">🏖️ Plages &amp; centre de Deauville</td><td>Pics week-ends, ponts, beaux week-ends d'été</td><td>Cœur touristique à quelques minutes : couples et familles, séjours 2-4 nuits</td></tr>
+    </tbody>
+  </table></div>
+  <p class="source">Sources : France Galop (Meeting de Deauville, 2-30 août 2026), Grand Prix Events (Longines Deauville Classic CSI 4*, 13-16 août 2026), Deauville International Polo Club (Asia Polo Cup, dès le 6 août 2026), Golf Barrière Deauville (Mont-Canisy, Saint-Arnoult), Festival du Cinéma Américain, calendrier de l'Éducation nationale. Distances mesurées depuis le 6 avenue de la Vallée.</p>
+
+  <div class="section-title">🏘️ Biens comparables — Saint-Arnoult &amp; Côte Fleurie, 2-4 voyageurs</div>
+  <div class="section-intro">Comparables réels relevés sur Airbnb par simulation de réservation (prix net hôte par nuit reconstitué après déduction taxe de séjour et frais de plateforme ~15,5 %). Le « jumeau » — même résidence avec piscine, même capacité, rez-de-jardin — est la référence la plus fiable. Les revenus relevés ne préjugent pas des performances du bien.</div>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Comparable</th><th>Net/nuit observé</th><th>Lecture pour le bien</th></tr></thead>
+    <tbody>
+      <tr><td>🏊 « La Ferme de Deauville » — Saint-Arnoult <span class="badge badge-haute">Le jumeau</span></td><td>108-114 € (semaine) · 125-129 € (w-e) · jusqu'à 190 € (14 juillet)</td><td>Même résidence avec piscine, rez-de-jardin + jardin, capacité 4 — la référence la plus directe. Superhôte 4,79 (91 avis)</td></tr>
+      <tr><td>🔑 « Loft » 500 m Pôle du Cheval — Saint-Arnoult</td><td>91 € (semaine, très stable) · 131-147 € (été)</td><td>Plancher de marché Saint-Arnoult ; cale le scénario prudent. Coup de cœur 4,92 (72 avis)</td></tr>
+      <tr><td>🌊 « La Marina Blue Bay » T2 — Deauville</td><td>172-182 €/nuit</td><td>Repère Deauville centre vue mer : segment plus cher, situe le plafond théorique du marché voisin</td></tr>
+      <tr><td>🐎 Saturation estivale observée</td><td>0 à 1 comparable disponible / fenêtre de mi-juin à mi-août</td><td>Le marché tourne à occupation quasi pleine l'été : le risque n'est pas le remplissage mais le sous-pricing — d'où un positionnement haut justifié en juillet-août</td></tr>
+      <tr><td>📅 Événements d'août (galop, CSI 4*, polo)</td><td>Comparables non disponibles sur les fenêtres 6-9 et 13-16 août</td><td>Confirme la tension événementielle : premium fort défendable sur ces dates</td></tr>
+    </tbody>
+  </table></div>
+  <p class="source">Comparables relevés sur Airbnb (juin 2026) par simulation de réservation, net hôte reconstitué (− taxe de séjour − frais plateforme 15,5 %). Aucune annonce n'affichait de frais de ménage ni de frais de service voyageur en ligne distincte. Les chiffres de la projection restent des hypothèses argumentées, non des revenus garantis.</p>
+</div>
+
+<!-- ===== TAB 2 ===== -->
+<div id="tab-projection" style="display:none">
+  <div class="section-title">📊 Projection de revenus — 12 mois (mai 2026 → avril 2027)</div>
+  <div class="section-intro">Trois scénarios construits en faisant varier conjointement le <strong>prix moyen par nuit</strong> et le <strong>taux d'occupation</strong> selon la saison — et non l'occupation seule. Le central est le plus probable pour un bien géré et bien positionné ; le plancher est volontairement prudent, le plafond suppose un alignement favorable prix/demande sans saturation irréaliste du calendrier.</div>
+  <div class="scenarios-grid">
+    <div class="scenario plancher" id="sc-plancher" onclick="selScenario('plancher')"><div class="scenario-label">Plancher · prudent</div><div class="scenario-value" id="sc-plancher-val">—</div><div class="scenario-nights" id="sc-plancher-sub">—</div></div>
+    <div class="scenario central selected" id="sc-central" onclick="selScenario('central')"><div class="scenario-label">✓ Central · probable</div><div class="scenario-value" id="sc-central-val">—</div><div class="scenario-nights" id="sc-central-sub">—</div></div>
+    <div class="scenario plafond" id="sc-plafond" onclick="selScenario('plafond')"><div class="scenario-label">Plafond · favorable</div><div class="scenario-value" id="sc-plafond-val">—</div><div class="scenario-nights" id="sc-plafond-sub">—</div></div>
+  </div>
+  <div class="kpi-grid">
+    <div class="kpi"><div class="kpi-label">Revenus bruts hébergement / an</div><div class="kpi-value" id="pj-brut">—</div><div class="kpi-sub">Prix × nuits, avant frais</div></div>
+    <div class="kpi"><div class="kpi-label">Nuits réservées / an</div><div class="kpi-value" id="pj-nights">—</div><div class="kpi-sub" id="pj-occ">—</div></div>
+    <div class="kpi"><div class="kpi-label">Prix moyen pondéré / nuit</div><div class="kpi-value" id="pj-adr">—</div><div class="kpi-sub">Sur l'année</div></div>
+    <div class="kpi accent"><div class="kpi-label">Net propriétaire estimé / an</div><div class="kpi-value" id="pj-net">—</div><div class="kpi-sub">Après frais plateforme &amp; commission</div></div>
+  </div>
+  <div class="chart-wrap"><div class="chart-title" id="pj-chart-title">Revenus bruts par mois — scénario central</div><div class="bar-chart" id="pj-bars"></div></div>
+  <div class="chart-wrap"><div class="chart-title" id="pj-table-title">Détail mensuel — scénario central</div>
+    <div class="table-wrap"><table><thead><tr><th>Mois</th><th>Saison</th><th>Prix/nuit</th><th>Nuits</th><th>Occ.</th><th class="gold">Revenus bruts</th></tr></thead><tbody id="pj-tbody"></tbody></table></div>
+  </div>
+  <p class="source">💡 Tarification dynamique des plateformes désactivée — pilotage manuel par Eukleia. Réductions séjours longs (≥ 7 nuits) en basse/moyenne saison. Frais de préparation (ménage + linge) facturés séparément au voyageur : ils ne grèvent pas le net propriétaire. Hypothèses de marché, non un revenu garanti.</p>
+</div>
+
+<!-- ===== TAB 3 ===== -->
+<div id="tab-commission" style="display:none">
+  <div class="section-title">💎 Commission Eukleia — barème progressif par tranches</div>
+  <div class="section-intro">La commission fonctionne comme l'impôt sur le revenu : chaque taux ne s'applique qu'à la <strong>fraction</strong> de chiffre d'affaires comprise dans sa tranche, jamais à l'intégralité du mois. Franchir un seuil ne renchérit pas la part déjà acquise — votre taux effectif reste lissé autour de 17-18 %.</div>
+  <div class="kpi-grid">
+    <div class="kpi"><div class="kpi-label">Tranche 1</div><div class="kpi-value" style="color:#2D6A4F">15 % HT</div><div class="kpi-sub">Part de CA net plateforme ≤ Seuil 1</div></div>
+    <div class="kpi"><div class="kpi-label">Tranche 2</div><div class="kpi-value" style="color:#B8975A">20 % HT</div><div class="kpi-sub">Part entre Seuil 1 et Seuil 2</div></div>
+    <div class="kpi dark"><div class="kpi-label">Tranche 3</div><div class="kpi-value">25 % HT</div><div class="kpi-sub">Part de CA net plateforme &gt; Seuil 2</div></div>
+  </div>
+  <div class="scenarios-grid">
+    <div class="scenario plancher" id="cm-plancher" onclick="selComm('plancher')"><div class="scenario-label">Plancher</div><div class="scenario-value" id="cm-plancher-val">—</div><div class="scenario-nights">Net propriétaire / an</div></div>
+    <div class="scenario central selected" id="cm-central" onclick="selComm('central')"><div class="scenario-label">✓ Central</div><div class="scenario-value" id="cm-central-val">—</div><div class="scenario-nights">Net propriétaire / an</div></div>
+    <div class="scenario plafond" id="cm-plafond" onclick="selComm('plafond')"><div class="scenario-label">Plafond</div><div class="scenario-value" id="cm-plafond-val">—</div><div class="scenario-nights">Net propriétaire / an</div></div>
+  </div>
+  <div class="kpi-grid">
+    <div class="kpi"><div class="kpi-label">Revenus bruts hébergement</div><div class="kpi-value" id="cm-brut">—</div><div class="kpi-sub">Prix de location × nuits</div></div>
+    <div class="kpi" style="border-left:3px solid #A32D2D"><div class="kpi-label">Frais plateforme (~15,5 %)</div><div class="kpi-value" id="cm-plat" style="color:#A32D2D">—</div><div class="kpi-sub">Modèle frais uniques côté hôte</div></div>
+    <div class="kpi" style="border-left:3px solid #B8975A"><div class="kpi-label">Commission Eukleia</div><div class="kpi-value" id="cm-euk" style="color:#B8975A">—</div><div class="kpi-sub" id="cm-eff">taux effectif —</div></div>
+    <div class="kpi accent"><div class="kpi-label">Net propriétaire</div><div class="kpi-value" id="cm-net">—</div><div class="kpi-sub">Ce que vous percevez réellement</div></div>
+  </div>
+  <div class="adv-grid">
+    <div class="adv-card"><div class="adv-card-title">🔢 Ordre de calcul</div><div class="adv-card-desc">1. Les frais de plateforme (~15,5 % en modèle frais uniques) sont prélevés à la source sur le brut. 2. La commission Eukleia s'applique ensuite par tranches sur le CA net plateforme encaissé.</div></div>
+    <div class="adv-card"><div class="adv-card-title">🪜 Aucun effet de seuil</div><div class="adv-card-desc">Un euro de CA en plus ne fait jamais basculer tout le mois dans la tranche supérieure. Seule la fraction au-dessus du seuil est concernée.</div></div>
+    <div class="adv-card"><div class="adv-card-title">🍂 Moins en basse saison</div><div class="adv-card-desc">Quand le CA baisse, il reste dans les premières tranches (15-20 %). Eukleia partage le risque saisonnier : le 25 % ne joue que sur la performance excédentaire.</div></div>
+    <div class="adv-card"><div class="adv-card-title">🎁 Le split Airbnb en bonus</div><div class="adv-card-desc">La projection retient le modèle prudent à 15,5 %. Si le bien bascule en frais partagés Airbnb (3 % hôte), votre net réel dépassera l'estimation — un écart à votre avantage.</div></div>
+  </div>
+  <div class="chart-wrap"><div class="chart-title" id="cm-table-title">Détail mensuel — scénario central</div>
+    <div class="table-wrap"><table><thead><tr><th>Mois</th><th>Rev. bruts</th><th>Frais plateforme</th><th class="gold">Comm. Eukleia</th><th>Taux eff.</th><th class="green">Net propriétaire</th></tr></thead><tbody id="cm-tbody"></tbody></table></div>
+  </div>
+  <p class="source">💡 <strong>Comment lire le « taux effectif »</strong> : c'est le rapport entre la commission Eukleia du mois et le CA net plateforme de ce mois. Comme le barème est progressif, ce taux n'est pas fixe — il dépend de la part du CA qui tombe dans chaque tranche. En pratique, sur la plupart des mois le CA se situe entre le Seuil 1 et le Seuil 2 : il est donc taxé 15 % sur sa première partie et 20 % au-delà, ce qui donne un taux effectif autour de 17-18 %. Plus un mois est performant et déborde dans la tranche à 25 %, plus son taux effectif monte ; un mois faible reste proche de 15 %. <br><br>Seuils mensuels en CA net plateforme. Seuil 1 = passage 15 %→20 % (calibré à 65 % du CA net du plancher du mois) ; Seuil 2 = passage 20 %→25 % (CA net du plafond du mois). Barème et seuils identiques à l'Annexe 1 bis du contrat.</p>
+</div>
+
+<!-- ===== TAB 4 : FAQ ===== -->
+<div id="tab-faq" style="display:none">
+  <div class="section-title">❓ Questions fréquentes &amp; cadre de la prestation</div>
+  <div class="section-intro">Les points opérationnels, financiers et contractuels les plus courants. Le contrat de mandat en précise l'ensemble des modalités.</div>
+  <div id="faq-list"></div>
+</div>
+
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+const MONTHS = [
+  {m:"Mai 2026",d:31,sais:"Moyenne",prix:[110, 120, 135],occ:[0.39,0.52,0.61],nuits:[12, 16, 19],brut:[1320, 1920, 2565],net:[1115, 1622, 2167],s1:725,s2:2167},
+  {m:"Juin 2026",d:30,sais:"Haute",prix:[130, 145, 165],occ:[0.5,0.63,0.73],nuits:[15, 19, 22],brut:[1950, 2755, 3630],net:[1648, 2328, 3067],s1:1071,s2:3067},
+  {m:"Juil. 2026",d:31,sais:"Très haute",prix:[158, 175, 200],occ:[0.68,0.81,0.94],nuits:[21, 25, 29],brut:[3318, 4375, 5800],net:[2804, 3697, 4901],s1:1823,s2:4901},
+  {m:"Août 2026",d:31,sais:"Très haute",prix:[178, 195, 225],occ:[0.77,0.9,0.94],nuits:[24, 28, 29],brut:[4272, 5460, 6525],net:[3610, 4614, 5514],s1:2346,s2:5514},
+  {m:"Sept. 2026",d:30,sais:"Haute",prix:[118, 130, 150],occ:[0.47,0.57,0.67],nuits:[14, 17, 20],brut:[1652, 2210, 3000],net:[1396, 1867, 2535],s1:907,s2:2535},
+  {m:"Oct. 2026",d:31,sais:"Moyenne",prix:[102, 112, 128],occ:[0.35,0.45,0.55],nuits:[11, 14, 17],brut:[1122, 1568, 2176],net:[948, 1325, 1839],s1:616,s2:1839},
+  {m:"Nov. 2026",d:30,sais:"Basse",prix:[92, 100, 115],occ:[0.23,0.33,0.43],nuits:[7, 10, 13],brut:[644, 1000, 1495],net:[544, 845, 1263],s1:354,s2:1263},
+  {m:"Déc. 2026",d:31,sais:"Moyenne",prix:[107, 118, 140],occ:[0.29,0.39,0.52],nuits:[9, 12, 16],brut:[963, 1416, 2240],net:[814, 1197, 1893],s1:529,s2:1893},
+  {m:"Janv. 2027",d:31,sais:"Basse",prix:[90, 98, 112],occ:[0.23,0.29,0.39],nuits:[7, 9, 12],brut:[630, 882, 1344],net:[532, 745, 1136],s1:346,s2:1136},
+  {m:"Fév. 2027",d:28,sais:"Moyenne",prix:[98, 108, 124],occ:[0.29,0.39,0.46],nuits:[8, 11, 13],brut:[784, 1188, 1612],net:[662, 1004, 1362],s1:430,s2:1362},
+  {m:"Mars 2027",d:31,sais:"Basse",prix:[96, 105, 120],occ:[0.26,0.35,0.45],nuits:[8, 11, 14],brut:[768, 1155, 1680],net:[649, 976, 1420],s1:422,s2:1420},
+  {m:"Avril 2027",d:30,sais:"Moyenne",prix:[112, 122, 140],occ:[0.4,0.53,0.63],nuits:[12, 16, 19],brut:[1344, 1952, 2660],net:[1136, 1649, 2248],s1:738,s2:2248}
+];
+
+const FEE=0.155;
+function fmt(n){return Math.round(n).toLocaleString('fr-FR');}
+function badgeClass(s){return s==='Haute'?'badge-haute':s==='Très haute'?'badge-tres-haute':s==='Basse'?'badge-basse':'badge-mi';}
+const IDX={plancher:0,central:1,plafond:2};
+const TOTDAYS=MONTHS.reduce((s,m)=>s+m.d,0);
+let mapDone=false;
+
+function showTab(id,el){
+  ['marche','projection','commission','faq'].forEach(t=>{document.getElementById('tab-'+t).style.display=(t===id?'block':'none');});
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  if(id==='marche'&&window._map){setTimeout(()=>window._map.invalidateSize(),80);}
+}
+function commTranches(net,s1,s2){let c=Math.min(net,s1)*0.15;if(net>s1)c+=(Math.min(net,s2)-s1)*0.20;if(net>s2)c+=(net-s2)*0.25;return Math.round(c);}
+
+let curPj='central';
+function selScenario(sc){curPj=sc;document.querySelectorAll('#tab-projection .scenario').forEach(s=>s.classList.remove('selected'));document.getElementById('sc-'+sc).classList.add('selected');renderPj();}
+function renderPj(){
+  const i=IDX[curPj];
+  ['plancher','central','plafond'].forEach(s=>{const j=IDX[s];let net=0,nights=0;MONTHS.forEach(m=>{net+=m.net[j];nights+=m.nuits[j];});const comm=MONTHS.reduce((a,m)=>a+commTranches(m.net[j],m.s1,m.s2),0);document.getElementById('sc-'+s+'-val').textContent=fmt(net-comm)+' €';document.getElementById('sc-'+s+'-sub').textContent=nights+' nuits · '+Math.round(nights/TOTDAYS*100)+'% occ';});
+  let brut=0,nights=0;MONTHS.forEach(m=>{brut+=m.brut[i];nights+=m.nuits[i];});
+  const netPlat=Math.round(brut*(1-FEE));const comm=MONTHS.reduce((a,m)=>a+commTranches(m.net[i],m.s1,m.s2),0);
+  document.getElementById('pj-brut').textContent=fmt(brut)+' €';
+  document.getElementById('pj-nights').textContent=nights;
+  document.getElementById('pj-occ').textContent=Math.round(nights/TOTDAYS*100)+'% sur l\'année';
+  document.getElementById('pj-adr').textContent=fmt(brut/nights)+' €';
+  document.getElementById('pj-net').textContent=fmt(netPlat-comm)+' €';
+  const scl=curPj.charAt(0).toUpperCase()+curPj.slice(1);
+  document.getElementById('pj-chart-title').textContent='Revenus bruts par mois — scénario '+scl;
+  document.getElementById('pj-table-title').textContent='Détail mensuel — scénario '+scl;
+  const maxB=Math.max(...MONTHS.map(m=>m.brut[2]));let bars='';
+  MONTHS.forEach(m=>{const h=Math.round(m.brut[i]/maxB*100);bars+='<div class="bar-col"><div class="bar-val">'+Math.round(m.brut[i]/1000)+'k</div><div class="bar-fill-wrap"><div class="bar" style="height:'+h+'%"></div></div><div class="bar-label">'+m.m.slice(0,3)+'</div></div>';});
+  document.getElementById('pj-bars').innerHTML=bars;
+  let rows='',tn=0,tb=0;
+  MONTHS.forEach(m=>{const occ=Math.round(m.nuits[i]/m.d*100);tn+=m.nuits[i];tb+=m.brut[i];rows+='<tr><td>'+m.m+'</td><td><span class="badge '+badgeClass(m.sais)+'">'+m.sais+'</span></td><td class="bold-navy">'+m.prix[i]+' €</td><td>'+m.nuits[i]+'</td><td>'+occ+'%</td><td class="green" style="font-weight:600">'+fmt(m.brut[i])+' €</td></tr>';});
+  rows+='<tr class="total-row"><td>TOTAL</td><td></td><td class="gold">'+fmt(tb/tn)+' €</td><td class="gold">'+tn+'</td><td class="gold">'+Math.round(tn/TOTDAYS*100)+'%</td><td class="gold">'+fmt(tb)+' €</td></tr>';
+  document.getElementById('pj-tbody').innerHTML=rows;
+}
+
+let curCm='central';
+function selComm(sc){curCm=sc;document.querySelectorAll('#tab-commission .scenario').forEach(s=>s.classList.remove('selected'));document.getElementById('cm-'+sc).classList.add('selected');renderCm();}
+function renderCm(){
+  const i=IDX[curCm];
+  ['plancher','central','plafond'].forEach(s=>{const j=IDX[s];let net=0;MONTHS.forEach(m=>{net+=m.net[j];});const comm=MONTHS.reduce((a,m)=>a+commTranches(m.net[j],m.s1,m.s2),0);document.getElementById('cm-'+s+'-val').textContent=fmt(net-comm)+' €';});
+  let brut=0,netPlat=0,comm=0;MONTHS.forEach(m=>{brut+=m.brut[i];netPlat+=m.net[i];comm+=commTranches(m.net[i],m.s1,m.s2);});
+  const plat=brut-netPlat;
+  document.getElementById('cm-brut').textContent=fmt(brut)+' €';
+  document.getElementById('cm-plat').textContent='− '+fmt(plat)+' €';
+  document.getElementById('cm-euk').textContent='− '+fmt(comm)+' €';
+  document.getElementById('cm-eff').textContent='taux effectif '+(comm/netPlat*100).toFixed(1).replace('.',',')+' %';
+  document.getElementById('cm-net').textContent=fmt(netPlat-comm)+' €';
+  const scl=curCm.charAt(0).toUpperCase()+curCm.slice(1);
+  document.getElementById('cm-table-title').textContent='Détail mensuel — scénario '+scl;
+  let rows='',tb=0,tp=0,tc=0,tnet=0;
+  MONTHS.forEach(m=>{const b=m.brut[i],np=m.net[i],cp=b-np,ce=commTranches(np,m.s1,m.s2),net=np-ce;tb+=b;tp+=cp;tc+=ce;tnet+=net;const eff=np>0?(ce/np*100).toFixed(1).replace('.',',')+'%':'—';rows+='<tr><td>'+m.m+'</td><td class="bold-navy">'+fmt(b)+' €</td><td style="color:#A32D2D">'+fmt(cp)+' €</td><td>'+fmt(ce)+' €</td><td>'+eff+'</td><td class="green" style="font-weight:700">'+fmt(net)+' €</td></tr>';});
+  rows+='<tr class="total-row"><td>TOTAL</td><td class="gold">'+fmt(tb)+' €</td><td>'+fmt(tp)+' €</td><td class="gold">'+fmt(tc)+' €</td><td>'+(tc/(tb-tp)*100).toFixed(1).replace('.',',')+'%</td><td class="gold">'+fmt(tnet)+' €</td></tr>';
+  document.getElementById('cm-tbody').innerHTML=rows;
+}
+
+/* FAQ */
+const FAQ=[
+ ["🔑 Que se passe-t-il en fin de contrat ? Suis-je engagé ?","Réversibilité totale : restitution des accès, retrait des co-hôtes Eukleia, remise des éléments utiles à la continuité. Vous restez seuls titulaires des comptes, de l'annonce, des textes et des photos. Préavis de 30 jours ; les réservations déjà confirmées sont honorées pour garantir la continuité d'exploitation."],
+ ["💳 Comment suis-je payé, et quand ?","Les plateformes versent les loyers sur le compte rattaché à VOS comptes hôte (vous en restez titulaire). Eukleia établit chaque mois une facture de commission + frais, accompagnée d'un reporting détaillé. Vous gardez à tout moment la visibilité directe sur les encaissements plateforme."],
+ ["🧹 Qui assure les ménages et les contrôles qualité ?","Eukleia coordonne et contrôle chaque rotation. Le ménage est exécuté par des intervenants de confiance sous notre suivi systématique. Les frais de préparation sont affichés sur les plateformes et facturés au voyageur — ils ne réduisent pas votre net."],
+ ["🛡️ Et si un dégât survient dans l'appartement ?","Une caution est demandée à chaque voyageur (préempreinte ou via AirCover Airbnb). En cas de dégât constaté à l'état des lieux de sortie, Eukleia documente le sinistre (photos, constat) et engage la procédure d'indemnisation auprès de la plateforme et/ou de l'assureur, en vous tenant informés à chaque étape."],
+ ["📅 Puis-je bloquer des dates pour mon usage personnel ?","Oui, à tout moment. Vous nous signalez vos périodes d'occupation et nous bloquons le calendrier sur toutes les plateformes. Aucune commission n'est due sur vos séjours personnels."],
+ ["💶 Quels sont les frais réellement déduits de mes revenus ?","Deux postes : (1) les frais de plateforme (~15,5 % en modèle frais uniques, prélevés à la source par Airbnb/Booking/Abritel) ; (2) la commission Eukleia par tranches (15/20/25 % HT) sur le CA net plateforme. Les frais de ménage sont refacturés au voyageur, pas à vous."],
+ ["📊 Les revenus annoncés sont-ils garantis ?","Non. La projection repose sur des hypothèses de marché (prix et occupation). Eukleia est tenue à une obligation de moyens, non de résultat : nous optimisons positionnement, diffusion et tarification, sans garantir un taux d'occupation ni un niveau de revenus."],
+ ["🏛️ Faut-il déclarer le meublé en mairie ? Et la taxe de séjour ?","Oui : enregistrement du meublé de tourisme en mairie de Saint-Arnoult (numéro de déclaration) requis pour la diffusion. La taxe de séjour est collectée par les plateformes et reversée à la collectivité. Eukleia vous accompagne dans ces démarches et leur suivi."],
+ ["🧾 Quelle fiscalité sur mes revenus locatifs ?","Les revenus relèvent du régime des loueurs en meublé (LMNP le plus souvent) : micro-BIC avec abattement, ou réel. Eukleia n'est pas conseil fiscal ; nous vous fournissons un récapitulatif annuel des encaissements et recommandons de valider votre régime avec votre comptable."],
+ ["📷 À qui appartiennent les photos et l'annonce créées ?","À vous. Les textes de l'annonce et les photos réalisées pour votre bien vous reviennent. Seules les méthodes et modèles internes de travail d'Eukleia restent notre propriété. En cas de séance photo professionnelle financée par vous, les clichés vous appartiennent."],
+ ["⏱️ Combien de temps avant la mise en ligne ?","Après signature et état des lieux : création de l'annonce, shooting, paramétrage tarifaire et diffusion multi-plateformes sous environ 7 à 10 jours, selon la disponibilité du bien et des prestataires."],
+ ["🤝 Pourquoi un barème progressif plutôt qu'un taux fixe ?","Pour aligner nos intérêts et lisser votre coût : vous ne payez le taux le plus élevé que sur la performance excédentaire, jamais sur l'ensemble du mois. En basse saison, votre taux effectif baisse mécaniquement."],
+];
+function renderFaq(){
+  document.getElementById('faq-list').innerHTML=FAQ.map((f,i)=>'<div class="faq-item" id="faq-'+i+'"><div class="faq-q" onclick="toggleFaq('+i+')"><span>'+f[0]+'</span><span class="chev">▶</span></div><div class="faq-a"><div class="faq-a-inner">'+f[1]+'</div></div></div>').join('');
+}
+function toggleFaq(i){document.getElementById('faq-'+i).classList.toggle('open');}
+
+function initMap(){
+  if(mapDone)return;
+  if(typeof L==='undefined'){return;}
+  mapDone=true;
+  try{
+    const fb=document.getElementById('map-fallback'); if(fb)fb.remove();
+    const bien=[49.3355665,0.0914869];
+    const map=L.map('map',{scrollWheelZoom:false}).setView([49.3450,0.0850],13);
+    window._map=map;
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{attribution:'© OpenStreetMap, © CARTO',subdomains:'abcd',maxZoom:19}).addTo(map);
+    const pts=[
+      {n:'Le bien — 6 avenue de la Vallée',lat:49.3355665,lng:0.0914869,c:'#B8975A',r:11,d:'T2 + jardin · piscine · tennis'},
+      {n:'Golf Barrière (Mont-Canisy)',lat:49.3398702,lng:0.0787994,c:'#2D6A4F',r:8,d:'~5 min · au pied du parcours'},
+      {n:'Pôle International du Cheval Longines',lat:49.3393589,lng:0.0960744,c:'#2D6A4F',r:8,d:'~3 min · CSI 4* Longines Classic'},
+      {n:'Hippodrome Deauville-La Touques',lat:49.3533734,lng:0.0791248,c:'#2D6A4F',r:8,d:'Meeting de galop d\'août'},
+      {n:'Plage &amp; planches de Deauville',lat:49.3604495,lng:0.065522,c:'#41607A',r:8,d:'~8 min en voiture'},
+      {n:'Gare Deauville-Trouville',lat:49.3599608,lng:0.0842854,c:'#41607A',r:8,d:'Liaison directe Paris-St-Lazare'},
+    ];
+    pts.forEach(p=>{L.circleMarker([p.lat,p.lng],{radius:p.r,fillColor:p.c,color:'#fff',weight:2,fillOpacity:1}).addTo(map).bindPopup('<strong>'+p.n+'</strong><br>'+p.d);});
+    L.marker(bien).addTo(map).bindPopup('<strong>Le bien</strong><br>6 avenue de la Vallée, Saint-Arnoult').openPopup();
+    [60,200,500,1000].forEach(t=>setTimeout(()=>map.invalidateSize(),t));
+  }catch(e){
+    const m=document.getElementById('map'); if(m)m.innerHTML='<div style="padding:20px;color:#A32D2D;font-size:13px">La carte n\'a pas pu se charger (connexion requise). Les distances figurent dans le tableau ci-dessus.</div>';
+  }
+}
+function boot(){renderPj();renderCm();renderFaq();initMap();}
+if(document.readyState==='complete'||document.readyState==='interactive'){setTimeout(boot,1);}
+else{document.addEventListener('DOMContentLoaded',boot);}
+window.addEventListener('load',function(){if(window._map)window._map.invalidateSize();});
+</script>
+</body>
+</html>
